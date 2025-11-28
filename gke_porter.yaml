@@ -1,0 +1,71 @@
+version: v2
+name: k8s-upgrade-tests
+services:
+- name: api
+  run: gunicorn -c gunicorn.conf.py main:app
+  type: web
+  instances: 3
+  cpuCores: 1
+  ramMegabytes: 2000
+  terminationGracePeriodSeconds: 30
+  port: 3000
+  autoscaling:
+    enabled: true
+    minInstances: 3
+    maxInstances: 10
+    gpu: false
+    cpuThresholdPercent: 50
+    memoryThresholdPercent: 50
+    gpuThresholdPercent: 100
+    vramThresholdPercent: 100
+  domains:
+  - name: gke.k8s-upgrade-tests.rudimk-porter.xyz
+  healthCheck:
+    enabled: true
+    httpPath: /healthz
+    timeoutSeconds: 1
+    initialDelaySeconds: 15
+  ingressAnnotations:
+    nginx.ingress.kubernetes.io/proxy-connect-timeout: '"300"'
+    nginx.ingress.kubernetes.io/proxy-read-timeout: '"300"'
+    nginx.ingress.kubernetes.io/proxy-send-timeout: '"300"'
+  sleep: false
+  serviceMeshEnabled: false
+- name: flower
+  run: celery -A worker flower
+  type: web
+  instances: 1
+  cpuCores: 1
+  ramMegabytes: 1000
+  terminationGracePeriodSeconds: 30
+  port: 5555
+  domains:
+  - name: flower.gke.k8s-upgrade-tests.rudimk-porter.xyz
+  sleep: false
+  serviceMeshEnabled: false
+- name: worker
+  run: celery -A worker worker --loglevel=info
+  type: worker
+  instances: 3
+  cpuCores: 1
+  ramMegabytes: 1000
+  terminationGracePeriodSeconds: 30
+  autoscaling:
+    enabled: true
+    minInstances: 3
+    maxInstances: 10
+    gpu: false
+    cpuThresholdPercent: 70
+    memoryThresholdPercent: 70
+    gpuThresholdPercent: 100
+    vramThresholdPercent: 100
+  sleep: false
+  serviceMeshEnabled: false
+build:
+  context: ./
+  method: docker
+  dockerfile: ./Dockerfile
+envGroups:
+- doppler-env
+- k8s-upgrade-tests
+
