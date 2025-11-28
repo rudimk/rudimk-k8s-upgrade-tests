@@ -5,7 +5,7 @@ services:
   run: gunicorn -c gunicorn.conf.py main:app
   type: web
   instances: 3
-  cpuCores: 2
+  cpuCores: 1
   ramMegabytes: 2000
   terminationGracePeriodSeconds: 30
   port: 3000
@@ -19,8 +19,7 @@ services:
     gpuThresholdPercent: 100
     vramThresholdPercent: 100
   domains:
-  - name: api-8765-49b1837b-xlf6rn0b.onporter.run
-  - name: k8s-upgrade-tests.rudimk-porter.xyz
+  - name: gke.k8s-upgrade-tests.rudimk-porter.xyz
   healthCheck:
     enabled: true
     httpPath: /healthz
@@ -41,7 +40,7 @@ services:
   terminationGracePeriodSeconds: 30
   port: 5555
   domains:
-  - name: flower.k8s-upgrade-tests.rudimk-porter.xyz
+  - name: flower.gke.k8s-upgrade-tests.rudimk-porter.xyz
   sleep: false
   serviceMeshEnabled: false
 - name: worker
@@ -68,5 +67,5 @@ build:
   dockerfile: ./Dockerfile
 envGroups:
 - doppler-env
-- k8s-upgrades-tests
+- k8s-upgrade-tests
 
