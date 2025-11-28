@@ -37,8 +37,6 @@ services:
   ramMegabytes: 1000
   terminationGracePeriodSeconds: 30
   port: 5555
-  domains:
-  - name: flower.gke.k8s-upgrade-tests.rudimk-porter.xyz
   sleep: false
   serviceMeshEnabled: false
 - name: worker
